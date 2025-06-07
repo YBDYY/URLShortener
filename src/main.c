@@ -1,7 +1,9 @@
 #include "../include/http-server.h"
-#include "../include/args.h"
+#include "../include/utils.h"
 
 int main(int argc, char *argv[]){
-	server();
+	struct arguments arguments;
+	loadArguments(argc, argv, &arguments);
+
 	return 0;
 }

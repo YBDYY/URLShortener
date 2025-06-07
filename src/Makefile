@@ -1,7 +1,7 @@
 SRC:=$(wildcard *.c)
 BIN:=URLShortener
 OBJ:=$(SRC:.c=.o)
-CFLAGS +=-Wall
+CFLAGS +=-Wall -g
 
 .PHONY: all clean
 

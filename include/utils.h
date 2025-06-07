@@ -4,12 +4,12 @@
 #include <argp.h>
 #include <syslog.h>
 
-typedef struct arguments {
+#include <string.h>
+
+struct arguments {
 	char *subCommand;
 	char *subCommandArgument;
-} arguments_t;
-
-extern arguments_t arguments;
+};
 
 static struct argp_option options[] = {
 	{"help",  'h', 0, OPTION_ARG_OPTIONAL, "Show help message", -1},
@@ -19,6 +19,7 @@ static struct argp_option options[] = {
 
 error_t parseOpt(int key, char *arg, struct argp_state *state);
 
-int loadArguments(int argc, char **argv);
+int loadArguments(int argc, char **argv, struct arguments *arguments);
+
 
 #endif
