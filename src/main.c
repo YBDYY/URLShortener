@@ -4,6 +4,5 @@
 int main(int argc, char *argv[]){
 	struct arguments arguments;
 	loadArguments(argc, argv, &arguments);
-
 	return 0;
 }

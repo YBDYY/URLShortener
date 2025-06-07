@@ -1,5 +1,7 @@
 #include "../include/utils.h"
 
+// TODO: when scaling, implement custom return codes (enum)
+
 error_t parseOpt(int key, char *arg, struct argp_state *state)
 {	
 	struct arguments* arguments = state->input;
@@ -34,11 +36,25 @@ error_t parseOpt(int key, char *arg, struct argp_state *state)
 int loadArguments(int argc, char **argv, struct arguments *arguments)
 {   
     if (argc < 2){
-        syslog(LOG_ERR, "No arguments passed");
+        fprintf(stderr, "Error: No arguments passed \n");
         return -1;
     }
     static struct argp argp = {options, parseOpt, 0, 0};
     memset(arguments, 0, sizeof(*arguments)); 
     argp_parse(&argp, argc, argv, ARGP_NO_HELP, 0, arguments);
+    int result = handleArguments(arguments->subCommand, arguments->subCommandArgument);
+    if (result != 0)
+        return result;
     return 0;
+}
+
+int handleArguments(const char *subCommand, const char *argument)
+{
+    if (strcmp(subCommand, "add") == 0 || strcmp(subCommand, "resolve") == 0) {
+        return 0;
+    } 
+    else {
+        fprintf(stderr, "Error: Unknown subcommand \"%s\"\n", subCommand);
+        return -1;
+    }
 }
