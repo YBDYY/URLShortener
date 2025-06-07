@@ -5,6 +5,3 @@
 *.log
 *.db
 *.sqlite
-*URLShortener
-/bin/*
-/bin

@@ -1,16 +1,7 @@
-#include "../include/utils.h"
-#include "../include/hashing.h"
+#include "../include/http-server.h"
+#include "../include/args.h"
 
 int main(int argc, char *argv[]){
-	struct arguments arguments;
-	loadArguments(argc, argv, &arguments);
-	unsigned char hash[SHA256_DIGEST_LENGTH];
-	char short_code[12];
-	void* result = SHA256((const unsigned char *)arguments.subCommandArgument, strlen(arguments.subCommandArgument), hash);
-	if (result == NULL)
-		return -1;
-	base62_encode(hash_to_int(hash), short_code, sizeof(short_code));
-	
-	
+	server();
 	return 0;
 }
