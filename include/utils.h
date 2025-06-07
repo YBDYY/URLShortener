@@ -1,24 +1,17 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <argp.h>
 #include <syslog.h>
 
-typedef struct arguments {
+#include <string.h>
+
+struct arguments {
 	char *subCommand;
 	char *subCommandArgument;
-} arguments_t;
-
-extern arguments_t arguments;
-
-static struct argp_option options[] = {
-	{"help",  'h', 0, OPTION_ARG_OPTIONAL, "Show help message", -1},
-    {"usage", 'u', 0, OPTION_ARG_OPTIONAL, "Show usage", 0},
-    {0}
 };
 
 error_t parseOpt(int key, char *arg, struct argp_state *state);
 
-int loadArguments(int argc, char **argv);
+int loadArguments(int argc, char **argv, struct arguments *arguments);
 
-#endif
+int handleArguments(const char *subCommand, const char *argument);
