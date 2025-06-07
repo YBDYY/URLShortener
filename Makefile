@@ -7,8 +7,11 @@ CFLAGS += -Wall -g -Iinclude
 
 all: $(BIN)
 
-$(BIN): $(SRC)
+$(BIN): $(SRC) | bin/
 	$(CC) $(CFLAGS) -o $(BIN) $^
+
+bin/:
+	mkdir -p bin
 
 clean:
 	$(RM) $(OBJ) $(BIN)
