@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <argp.h>
 #include <syslog.h>
@@ -16,5 +15,3 @@ error_t parseOpt(int key, char *arg, struct argp_state *state);
 int loadArguments(int argc, char **argv, struct arguments *arguments);
 
 int handleArguments(const char *subCommand, const char *argument);
-
-#endif
