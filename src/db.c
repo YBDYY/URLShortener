@@ -3,22 +3,22 @@
 sqlite3 *db = NULL;
 char *zErrMsg = 0;
 
-static int callback_select(void *data, int argc, char **argv, char **azColName) {
-    char **result = (char **)data;
-    if (argc > 0 && argv[0]) {
-        *result = strdup(argv[0]);
-    }
+int callback_select(void *data, int argc, char **argv, char **azColName) {
+	char **result = (char **)data;
+	(*result) = strdup(argv[0]);
     return 0;
 }
 
-static int sql_execution(const char *query, char *zErrMsg)
+static int sql_execution(char *query, char *zErrMsg)
 {
 	int rc = sqlite3_exec(db, query, NULL, 0, &zErrMsg);
 	sqlite3_free(query);
 	if (rc != SQLITE_OK) {
 		if (zErrMsg) sqlite3_free(zErrMsg);
+		db_close();
 		return SQLITE_ERROR;
 	}
+	db_close();
 	return SQLITE_OK;
 }
 
@@ -33,11 +33,11 @@ int db_init(const char *db_path) {
 
 int table_insert(const char *short_code, const char *original_url)
 {	
-	char *zErrMsg = NULL;
 	if (!db) {
 		fprintf(stderr, "Error: database not initalized \n");
 		return SQLITE_DENY;
 	}
+	char *zErrMsg = NULL;
 	char *query = sqlite3_mprintf(
     "CREATE TABLE IF NOT EXISTS PAYLOAD ("
     "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -68,6 +68,7 @@ int table_select(const char *short_code)
 
 	if (rc != SQLITE_OK) {
 		if (zErrMsg) sqlite3_free(zErrMsg);
+		db_close();
 		return SQLITE_ERROR;
 	}
 
@@ -77,7 +78,7 @@ int table_select(const char *short_code)
 	} else {
 		printf("No URL found for short code: %s\n", short_code);
 	}
-
+	db_close();
 	return SQLITE_OK;
 }
 
