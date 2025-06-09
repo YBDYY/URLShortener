@@ -8,7 +8,7 @@ uint64_t hash_to_int(const unsigned char *hash)
     return val;
 }
 
-void base62_encode(uint64_t value, char *output, size_t output_size) {
+void base62Encode(uint64_t value, char *output, size_t output_size) {
 	const char base62_chars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     char buffer[12];
     int i = 0;

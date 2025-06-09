@@ -9,10 +9,10 @@ int main(int argc, char *argv[]){
 		return -1;
 	
 	if (strcmp(arguments.subCommand, "add") == 0)
-		return handle_add(arguments.subCommandArgument);
+		return handleAdd(arguments.subCommandArgument);
 	
 	if (strcmp(arguments.subCommand, "resolve") == 0)
-		return handle_resolve(arguments.subCommandArgument);
+		return handleResolve(arguments.subCommandArgument);
 	
 	return 0;
 }

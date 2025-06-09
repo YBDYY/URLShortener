@@ -56,8 +56,7 @@ int loadArguments(int argc, char **argv, struct arguments *arguments)
 
 int handleArguments(const char *subCommand, const char *argument)
 {
-    if (strcmp(subCommand, "add") == 0 || strcmp(subCommand, "resolve") == 0) 
-        return 0;
+    if (strcmp(subCommand, "add") == 0 || strcmp(subCommand, "resolve") == 0) return 0;
     if (strcmp(argument, "") == 0 || argument == NULL) {
         fprintf(stderr, "Error: No provided argument \n");
         return -1;

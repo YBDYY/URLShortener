@@ -6,10 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-int db_init(const char *db_path);
+int dbInit(const char *db_path);
 
-int table_insert(const char *short_code, const char *original_url);
+int check_duplication(const char *short_code);
 
-int table_select(const char *short_code);
+int tableInsert(const char *short_code, const char *original_url);
 
-void db_close();
+int tableSelect(const char *short_code);
+
+void dbClose();

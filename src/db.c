@@ -3,26 +3,26 @@
 sqlite3 *db = NULL;
 char *zErrMsg = 0;
 
-int callback_select(void *data, int argc, char **argv, char **azColName) {
+static int callbackSelect(void *data, int argc, char **argv, char **azColName) {
 	char **result = (char **)data;
 	(*result) = strdup(argv[0]);
     return 0;
 }
 
-static int sql_execution(char *query, char *zErrMsg)
+static int sqlExecution(char *query, char *zErrMsg)
 {
 	int rc = sqlite3_exec(db, query, NULL, 0, &zErrMsg);
 	sqlite3_free(query);
 	if (rc != SQLITE_OK) {
 		if (zErrMsg) sqlite3_free(zErrMsg);
-		db_close();
+		dbClose();
 		return SQLITE_ERROR;
 	}
-	db_close();
+	dbClose();
 	return SQLITE_OK;
 }
 
-int db_init(const char *db_path) {
+int dbInit(const char *db_path) {
     int rc = sqlite3_open(db_path, &db);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "sqlite3_open() failed: %s\n", sqlite3_errmsg(db));
@@ -31,12 +31,40 @@ int db_init(const char *db_path) {
     return SQLITE_OK;
 }
 
-int table_insert(const char *short_code, const char *original_url)
+int check_duplication(const char *short_code)
+{
+	sqlite3_stmt *stmt = NULL;
+	const char *sql = "SELECT URL FROM PAYLOAD WHERE SHORT_CODE = ?;";
+	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) return rc;
+	rc = sqlite3_bind_text(stmt, 1, short_code, -1, SQLITE_STATIC);
+	if (rc != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		return rc;
+	}
+	rc = sqlite3_step(stmt);
+	if (rc == SQLITE_ROW) {
+		const char *existing_url = (const char *)sqlite3_column_text(stmt, 0);
+		printf("Short code exists, URL: %s\n", existing_url);
+		sqlite3_finalize(stmt);
+		return 1;
+	} else if (rc == SQLITE_DONE) {
+		sqlite3_finalize(stmt);
+		return 0;
+	} else {
+		sqlite3_finalize(stmt);
+		return rc; 
+	}
+}
+
+int tableInsert(const char *short_code, const char *original_url)
 {	
 	if (!db) {
 		fprintf(stderr, "Error: database not initalized \n");
 		return SQLITE_DENY;
 	}
+	int rc = check_duplication(short_code);
+	if (rc != SQLITE_OK) return rc;
 	char *zErrMsg = NULL;
 	char *query = sqlite3_mprintf(
     "CREATE TABLE IF NOT EXISTS PAYLOAD ("
@@ -48,10 +76,10 @@ int table_insert(const char *short_code, const char *original_url)
     "VALUES('%q', '%q');",
     short_code, original_url
 	);
-	return sql_execution(query, zErrMsg);
+	return sqlExecution(query, zErrMsg);
 }
 
-int table_select(const char *short_code)
+int tableSelect(const char *short_code)
 {
 	if (!db) {
 		fprintf(stderr, "Error: database not initalized \n");
@@ -63,12 +91,12 @@ int table_select(const char *short_code)
 	);
 	char *zErrMsg = NULL;
 	char *result = NULL;
-	int rc = sqlite3_exec(db, query, callback_select, &result, &zErrMsg);
+	int rc = sqlite3_exec(db, query, callbackSelect, &result, &zErrMsg);
 	sqlite3_free(query);
 
 	if (rc != SQLITE_OK) {
 		if (zErrMsg) sqlite3_free(zErrMsg);
-		db_close();
+		dbClose();
 		return SQLITE_ERROR;
 	}
 
@@ -78,11 +106,11 @@ int table_select(const char *short_code)
 	} else {
 		printf("No URL found for short code: %s\n", short_code);
 	}
-	db_close();
+	dbClose();
 	return SQLITE_OK;
 }
 
-void db_close()
+void dbClose()
 {	
 	if (db) sqlite3_close(db);
 	db = NULL;
