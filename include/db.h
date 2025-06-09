@@ -2,6 +2,7 @@
 
 #include <sqlite3.h>
 #include <stddef.h>
+#include <stdio.h>
 
 int db_init(const char *db_path);
 

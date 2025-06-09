@@ -6,5 +6,6 @@
 *.db
 *.sqlite
 *URLShortener
-/bin/*
-/bin
+*data
+*bin
+
