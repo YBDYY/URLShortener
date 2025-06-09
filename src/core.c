@@ -30,4 +30,5 @@ int handle_resolve(const char *short_code)
 	rc = table_select(short_code);
 	if (rc != SQLITE_OK)
 		return rc;
+	return rc;
 }

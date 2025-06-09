@@ -8,15 +8,11 @@ int main(int argc, char *argv[]){
 	if (loadArguments(argc, argv, &arguments) != 0)
 		return -1;
 	
-	if (strcmp(arguments.subCommand, "add") == 0){
-		int rc = handle_add(arguments.subCommandArgument);
-		if (rc != SQLITE_OK)
-			return rc;
-	}
-	if (strcmp(arguments.subCommand, "resolve") == 0){
-		int rc = handle_resolve(arguments.subCommandArgument);
-		if (rc != SQLITE_OK)
-			return rc;
-	}
+	if (strcmp(arguments.subCommand, "add") == 0)
+		return handle_add(arguments.subCommandArgument);
+	
+	if (strcmp(arguments.subCommand, "resolve") == 0)
+		return handle_resolve(arguments.subCommandArgument);
+	
 	return 0;
 }

@@ -31,7 +31,7 @@ error_t parseOpt(int key, char *arg, struct argp_state *state)
 
         case ARGP_KEY_END:
 			if (arguments->subCommand == NULL || arguments->subCommandArgument == NULL)
-				argp_usage(state);
+                argp_usage(state);
 			break;
         default:
             return ARGP_ERR_UNKNOWN;
@@ -56,9 +56,12 @@ int loadArguments(int argc, char **argv, struct arguments *arguments)
 
 int handleArguments(const char *subCommand, const char *argument)
 {
-    if (strcmp(subCommand, "add") == 0 || strcmp(subCommand, "resolve") == 0) {
+    if (strcmp(subCommand, "add") == 0 || strcmp(subCommand, "resolve") == 0) 
         return 0;
-    } 
+    if (strcmp(argument, "") == 0 || argument == NULL) {
+        fprintf(stderr, "Error: No provided argument \n");
+        return -1;
+    }
     else {
         fprintf(stderr, "Error: Unknown subcommand \"%s\"\n", subCommand);
         return -1;
