@@ -31,16 +31,15 @@ int dbInit(const char *db_path) {
     return SQLITE_OK;
 }
 
-// int check_payload()
+// int check_URL_MAP()
 // {
-// 	const char *sql = "PRAGMA table_info(PAYLOAD);";
+// 	const char *sql = "PRAGMA table_info(URL_MAP);";
 // 	sqlite3_stmt *stmt;
 // 	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 // 	if (rc != SQLITE_OK) {
 // 		fprintf(stderr, "PRAGMA failed: %s\n", sqlite3_errmsg(db));
 // 		return rc;
 // 	}
-
 // 	while (sqlite3_step(stmt) == SQLITE_ROW) {
 // 		printf("Name: %s, Type: %s\n",
 // 		sqlite3_column_text(stmt, 1),
@@ -51,10 +50,13 @@ int dbInit(const char *db_path) {
 
 int check_duplication(const char *short_code)
 {	
-	// check_payload();
+	// int rc = check_payload();
+	int rc = 0;
+	if (rc != SQLITE_OK) return rc;
+
 	sqlite3_stmt *stmt = NULL;
-	const char *sql = "SELECT URL FROM PAYLOAD WHERE SHORT_CODE = ?;";
-	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+	const char *sql = "SELECT URL FROM URL_MAP WHERE SHORT_CODE = ?;";
+	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "sqlite3_prepare_v2() failed: %s\n", sqlite3_errmsg(db));
 		return rc;
@@ -94,12 +96,12 @@ int tableInsert(const char *short_code, const char *original_url)
 	}
 	char *zErrMsg = NULL;
 	char *query = sqlite3_mprintf(
-    "CREATE TABLE IF NOT EXISTS PAYLOAD ("
+    "CREATE TABLE IF NOT EXISTS URL_MAP ("
     "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
     "SHORT_CODE TEXT NOT NULL, "
     "URL TEXT NOT NULL, "
     "TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP); "
-    "INSERT INTO PAYLOAD (SHORT_CODE, URL) "
+    "INSERT INTO URL_MAP (SHORT_CODE, URL) "
     "VALUES('%q', '%q');",
     short_code, original_url
 	);
