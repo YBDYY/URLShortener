@@ -31,12 +31,34 @@ int dbInit(const char *db_path) {
     return SQLITE_OK;
 }
 
+// int check_payload()
+// {
+// 	const char *sql = "PRAGMA table_info(PAYLOAD);";
+// 	sqlite3_stmt *stmt;
+// 	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+// 	if (rc != SQLITE_OK) {
+// 		fprintf(stderr, "PRAGMA failed: %s\n", sqlite3_errmsg(db));
+// 		return rc;
+// 	}
+
+// 	while (sqlite3_step(stmt) == SQLITE_ROW) {
+// 		printf("Name: %s, Type: %s\n",
+// 		sqlite3_column_text(stmt, 1),
+// 		sqlite3_column_text(stmt, 2));
+// 	}
+// 	sqlite3_finalize(stmt);
+// }
+
 int check_duplication(const char *short_code)
-{
+{	
+	// check_payload();
 	sqlite3_stmt *stmt = NULL;
 	const char *sql = "SELECT URL FROM PAYLOAD WHERE SHORT_CODE = ?;";
 	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-	if (rc != SQLITE_OK) return rc;
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "sqlite3_prepare_v2() failed: %s\n", sqlite3_errmsg(db));
+		return rc;
+	}
 	rc = sqlite3_bind_text(stmt, 1, short_code, -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
 		sqlite3_finalize(stmt);
@@ -47,7 +69,7 @@ int check_duplication(const char *short_code)
 		const char *existing_url = (const char *)sqlite3_column_text(stmt, 0);
 		printf("Short code exists, URL: %s\n", existing_url);
 		sqlite3_finalize(stmt);
-		return 1;
+		return SQLITE_DETERMINISTIC;
 	} else if (rc == SQLITE_DONE) {
 		sqlite3_finalize(stmt);
 		return 0;
@@ -63,8 +85,13 @@ int tableInsert(const char *short_code, const char *original_url)
 		fprintf(stderr, "Error: database not initalized \n");
 		return SQLITE_DENY;
 	}
+	if (!short_code) return -1;
 	int rc = check_duplication(short_code);
-	if (rc != SQLITE_OK) return rc;
+	if (rc != SQLITE_OK){
+		printf("not okay\n");
+		dbClose();
+		return rc;
+	}
 	char *zErrMsg = NULL;
 	char *query = sqlite3_mprintf(
     "CREATE TABLE IF NOT EXISTS PAYLOAD ("

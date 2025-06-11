@@ -6,8 +6,8 @@
 #include <string.h>
 
 struct arguments {
-	char *subCommand;
-	char *subCommandArgument;
+	char subCommand[12];
+	char subCommandArgument[512];
 };
 
 error_t parseOpt(int key, char *arg, struct argp_state *state);
@@ -15,3 +15,5 @@ error_t parseOpt(int key, char *arg, struct argp_state *state);
 int loadArguments(int argc, char **argv, struct arguments *arguments);
 
 int handleArguments(const char *subCommand, const char *argument);
+
+void safeCopy(char *dest, size_t size, const char *src);

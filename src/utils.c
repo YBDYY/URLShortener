@@ -8,6 +8,11 @@ static struct argp_option options[] = {
     {0}
 };
 
+void safeCopy(char *dest, size_t size, const char *src) {
+	strncpy(dest, src, size - 1);
+	dest[size - 1] = '\0';
+}
+
 error_t parseOpt(int key, char *arg, struct argp_state *state)
 {	
 	struct arguments* arguments = state->input;
@@ -22,15 +27,15 @@ error_t parseOpt(int key, char *arg, struct argp_state *state)
 
         case ARGP_KEY_ARG:
 			if (state->arg_num == 0)
-				arguments->subCommand = arg;
+                safeCopy(arguments->subCommand, sizeof(arg), arg);
 			else if (state->arg_num == 1)
-				arguments->subCommandArgument = arg;
+				safeCopy(arguments->subCommandArgument, sizeof(arg), arg);
 			else
 				argp_usage(state);
 			break;
 
         case ARGP_KEY_END:
-			if (arguments->subCommand == NULL || arguments->subCommandArgument == NULL)
+			if (strcmp(arguments->subCommand, "") == 0 || strcmp(arguments->subCommandArgument, "") == 0)
                 argp_usage(state);
 			break;
         default:
