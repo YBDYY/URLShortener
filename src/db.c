@@ -97,7 +97,7 @@ int tableSelect(const char *short_code)
 		return SQLITE_DENY;
 	}
 	char *query = sqlite3_mprintf(
-		"SELECT URL FROM PAYLOAD WHERE SHORT_CODE = '%q';",
+		"SELECT URL FROM URL_MAP WHERE SHORT_CODE = '%q';",
 		short_code
 	);
 	char *zErrMsg = NULL;
