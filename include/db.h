@@ -12,8 +12,8 @@ int checkURLMAP();
 
 int checkDuplicate(const char *short_code);
 
-int tableInsert(const char *short_code, const char *original_url);
+int tableAdd(const char *short_code, const char *original_url);
 
-int tableSelect(const char *short_code);
+int tableResolve(const char *short_code);
 
 void dbClose();

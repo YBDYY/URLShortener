@@ -69,7 +69,7 @@ int checkDuplicate(const char *short_code)
 	}
 }
 
-int tableInsert(const char *short_code, const char *original_url)
+int tableAdd(const char *short_code, const char *original_url)
 {	
 	if (!db) {
 		fprintf(stderr, "Error: database not initalized \n");
@@ -90,7 +90,7 @@ int tableInsert(const char *short_code, const char *original_url)
 	return sqlExecution(query, zErrMsg);
 }
 
-int tableSelect(const char *short_code)
+int tableResolve(const char *short_code)
 {
 	if (!db) {
 		fprintf(stderr, "Error: database not initalized \n");
