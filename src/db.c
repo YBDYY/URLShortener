@@ -38,9 +38,11 @@ int dbInit(const char *db_path) {
     return sqlExecution(query, zErrMsg);
 }
 
-int check_duplication(const char *short_code)
+int checkDuplicate(const char *short_code)
 {	
 	sqlite3_stmt *stmt = NULL;
+	// better to use ? then to hardcode the short_code parameter
+	// sqlite3_bind_text() helps avoid SQL injection vulnerabilities.
 	const char *sql = "SELECT URL FROM URL_MAP WHERE SHORT_CODE = ?;";
 	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
@@ -74,9 +76,8 @@ int tableInsert(const char *short_code, const char *original_url)
 		return SQLITE_DENY;
 	}
 	if (!short_code) return -1;
-	int rc = check_duplication(short_code);
+	int rc = checkDuplicate(short_code);
 	if (rc != SQLITE_OK){
-		printf("not okay\n");
 		dbClose();
 		return rc;
 	}
