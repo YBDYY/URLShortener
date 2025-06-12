@@ -18,7 +18,6 @@ static int sqlExecution(char *query, char *zErrMsg)
 		dbClose();
 		return SQLITE_ERROR;
 	}
-	dbClose();
 	return SQLITE_OK;
 }
 
@@ -28,35 +27,22 @@ int dbInit(const char *db_path) {
         fprintf(stderr, "sqlite3_open() failed: %s\n", sqlite3_errmsg(db));
         return rc;
     }
-    return SQLITE_OK;
+	char *zErrMsg = NULL;
+	char *query = sqlite3_mprintf(
+    "CREATE TABLE IF NOT EXISTS URL_MAP ("
+    "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "SHORT_CODE TEXT NOT NULL UNIQUE, "
+    "URL TEXT NOT NULL, "
+    "TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP); "
+	);
+    return sqlExecution(query, zErrMsg);
 }
-
-// int check_URL_MAP()
-// {
-// 	const char *sql = "PRAGMA table_info(URL_MAP);";
-// 	sqlite3_stmt *stmt;
-// 	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-// 	if (rc != SQLITE_OK) {
-// 		fprintf(stderr, "PRAGMA failed: %s\n", sqlite3_errmsg(db));
-// 		return rc;
-// 	}
-// 	while (sqlite3_step(stmt) == SQLITE_ROW) {
-// 		printf("Name: %s, Type: %s\n",
-// 		sqlite3_column_text(stmt, 1),
-// 		sqlite3_column_text(stmt, 2));
-// 	}
-// 	sqlite3_finalize(stmt);
-// }
 
 int check_duplication(const char *short_code)
 {	
-	// int rc = check_payload();
-	int rc = 0;
-	if (rc != SQLITE_OK) return rc;
-
 	sqlite3_stmt *stmt = NULL;
 	const char *sql = "SELECT URL FROM URL_MAP WHERE SHORT_CODE = ?;";
-	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "sqlite3_prepare_v2() failed: %s\n", sqlite3_errmsg(db));
 		return rc;
@@ -96,11 +82,6 @@ int tableInsert(const char *short_code, const char *original_url)
 	}
 	char *zErrMsg = NULL;
 	char *query = sqlite3_mprintf(
-    "CREATE TABLE IF NOT EXISTS URL_MAP ("
-    "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
-    "SHORT_CODE TEXT NOT NULL, "
-    "URL TEXT NOT NULL, "
-    "TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP); "
     "INSERT INTO URL_MAP (SHORT_CODE, URL) "
     "VALUES('%q', '%q');",
     short_code, original_url
