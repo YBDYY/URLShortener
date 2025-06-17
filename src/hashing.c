@@ -16,9 +16,17 @@ void base62Encode(uint64_t value, char *output, size_t output_size) {
         buffer[i++] = base62_chars[value % 62];
         value /= 62;
     } while (value > 0 && i < (int)sizeof(buffer) - 1);
-
     int j = 0;
     while (i > 0 && j < (int)output_size - 1) 
         output[j++] = buffer[--i];
     output[j] = '\0';
+}
+
+int finalHashing(char *salted_string, const char *url, unsigned char *hash, char *short_code)
+{
+    snprintf(salted_string, SALTED_STRING_SIZE, "%s%ld%d", url, time(NULL), rand());
+	unsigned char *result = SHA256((const unsigned char *)url, strlen(url), hash);
+	if (result == NULL) return ERR_HASHING;
+	base62Encode(hash_to_int(hash), short_code, sizeof(short_code));
+    return 0;
 }

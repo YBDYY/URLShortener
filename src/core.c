@@ -1,25 +1,14 @@
 #include "../include/core.h"
 
-#define URL_PATH "data/URLSHORTENER.db"
-
 int handleAdd(const char *url) 
 {
 	unsigned char hash[SHA256_DIGEST_LENGTH];
-	char short_code[12];
-	int rc = dbInit(URL_PATH);
-	if (rc != SQLITE_OK)
-		return rc;
-	unsigned char *result = SHA256((const unsigned char *)url, strlen(url), hash);
-	if (result == NULL){
-		fprintf(stderr, "%s \n", result);
-		dbClose();
-		return -1;
-	}
-	base62Encode(hash_to_int(hash), short_code, sizeof(short_code));
-	rc = tableInsert(short_code, url);
-	if (rc == SQLITE_OK)
-		return rc;
-	return rc;
+	char short_code[SHORT_CODE_LENGTH];
+	char salted_string[SALTED_STRING_SIZE] = {0};
+	if (dbInit(URL_PATH) != 0) return ERR_DB_INIT;
+	if (finalHashing(salted_string, url, hash, short_code) != 0) return ERR_HASHING;
+	if (tableAdd(short_code, url) != 0) return ERR_DB_PROCESS;
+	return 0;
 }
 
 int handleResolve(const char *short_code)
@@ -27,7 +16,7 @@ int handleResolve(const char *short_code)
 	int rc = dbInit(URL_PATH);
 	if (rc != SQLITE_OK)
 		return rc;
-	rc = tableSelect(short_code);
+	rc = tableResolve(short_code);
 	if (rc != SQLITE_OK)
 		return rc;
 	return rc;
