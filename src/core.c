@@ -6,7 +6,7 @@ int handleAdd(const char *url)
 	char short_code[SHORT_CODE_LENGTH];
 	char salted_string[SALTED_STRING_SIZE] = {0};
 	if (dbInit(URL_PATH) != 0) return ERR_DB_INIT;
-	if (finalHashing(salted_string, url, hash, short_code) != 0) return ERR_HASHING;
+	if (finalHashing(salted_string, url, hash, short_code) != 0) return HASHING_ERR_NULL_INPUT;
 	if (tableAdd(short_code, url) != 0) return ERR_DB_PROCESS;
 	return 0;
 }
@@ -14,10 +14,7 @@ int handleAdd(const char *url)
 int handleResolve(const char *short_code)
 {
 	int rc = dbInit(URL_PATH);
-	if (rc != SQLITE_OK)
-		return rc;
+	if (rc != SQLITE_OK) return rc;
 	rc = tableResolve(short_code);
-	if (rc != SQLITE_OK)
-		return rc;
 	return rc;
 }

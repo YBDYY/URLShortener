@@ -2,8 +2,13 @@
 
 #include <argp.h>
 #include <syslog.h>
-
 #include <string.h>
+
+typedef enum {
+    UTILS_SUCCESS = 0,
+    UTILS_ERROR = -1,
+    UTILS_INVALID_ARG = -2
+} utils_return_t;
 
 struct arguments {
 	char subCommand[12];

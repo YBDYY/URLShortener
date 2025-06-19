@@ -51,7 +51,7 @@ int checkDuplicate(const char *short_code)
 		return SQLITE_DETERMINISTIC;
 	} else if (rc == SQLITE_DONE) {
 		sqlite3_finalize(stmt);
-		return 0;
+		return SQLITE_OK;
 	} else {
 		sqlite3_finalize(stmt);
 		return rc; 
