@@ -2,7 +2,9 @@
 
 sqlite3 *db = NULL;
 
-int dbInit(const char *db_path) {
+int dbInit(const char *db_path) 
+{
+	if (db != NULL) return SQLITE_OK;
     int rc = sqlite3_open(db_path, &db);
 	char *zErrMsg = NULL;
 	char *query = sqlite3_mprintf(
@@ -46,7 +48,7 @@ int checkDuplicate(const char *short_code)
 	rc = sqlite3_step(stmt);
 	if (rc == SQLITE_ROW) {
 		const char *existing_url = (const char *)sqlite3_column_text(stmt, 0);
-		printf("Short code exists, URL: %s\n", existing_url);
+		fprintf(stderr, "Short code exists, URL: %s\n", existing_url);
 		sqlite3_finalize(stmt);
 		return SQLITE_DETERMINISTIC;
 	} else if (rc == SQLITE_DONE) {
@@ -68,11 +70,11 @@ int tableAdd(const char *short_code, const char *original_url)
 		return SQLITE_DENY;
 	}
 	rc = checkDuplicate(short_code);
-	if (rc != SQLITE_OK) dbClose();
+	if (rc != SQLITE_OK) 
+		return rc;
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "Prepare update failed: %s\n", sqlite3_errmsg(db));
-		dbClose();
 		return rc;
 	}
 	sqlite3_bind_text(stmt, 1, original_url, -1, SQLITE_STATIC);
@@ -80,7 +82,6 @@ int tableAdd(const char *short_code, const char *original_url)
 	rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE) {
 		fprintf(stderr, "Update failed: %s\n", sqlite3_errmsg(db));
-		dbClose();
 		sqlite3_finalize(stmt);
 		return rc;
 	}
@@ -123,6 +124,7 @@ int tableResolve(const char *short_code)
 		return SQLITE_NOTFOUND;
 	} else {
 		fprintf(stderr, "Error during SELECT: %s\n", sqlite3_errmsg(db));
+		dbClose();
 		sqlite3_finalize(stmt);
 		return rc;
 	}
@@ -130,6 +132,6 @@ int tableResolve(const char *short_code)
 
 void dbClose()
 {	
-	if (db) sqlite3_close(db);
+	if (db != NULL) sqlite3_close(db);
 	db = NULL;
 }

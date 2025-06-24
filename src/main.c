@@ -13,9 +13,14 @@ int main(){
     // libmicrohttpd does not handle SIGPIPE, so we ignore it to ensure stability.
     signal(SIGPIPE, SIG_IGN); 
 	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_ERROR_LOG, PORT, NULL, NULL,
-                              &MHD_AccessHandlerCallback, NULL, MHD_OPTION_END);
-    if (daemon == NULL) return 1;
+                              &access_handler_callback, NULL, MHD_OPTION_END);
+    if (daemon == NULL) {
+        MHD_stop_daemon(daemon);
+        dbClose();
+        return -1;
+    } 
     getchar();
     MHD_stop_daemon(daemon);
+    dbClose();
     return 0;
 }

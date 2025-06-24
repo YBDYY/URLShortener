@@ -2,7 +2,7 @@ SRC := $(wildcard src/*.c)
 OBJ := $(SRC:.c=.o)
 BIN := bin/URLShortener
 CFLAGS += -Wall -g -Iinclude
-LDFLAGS += -lssl -lcrypto -lsqlite3 -lmicrohttpd
+LDFLAGS += -lssl -lcrypto -lsqlite3 -lmicrohttpd -lcjson
 
 .PHONY: all clean
 
