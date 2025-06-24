@@ -30,14 +30,14 @@ int handleAddPostRequest(struct MHD_Connection *connection, const char *upload_d
 
 int handleResolveGetRequest(struct MHD_Connection *connection, const char *short_code);
 
-// int post_iterator(void *cls,
-//                          enum MHD_ValueKind kind,
-//                          const char *key,
-//                          const char *filename,
-//                          const char *content_type,
-//                          const char *transfer_encoding,
-//                          const char *data,
-//                          uint64_t off,
-//                          size_t size);
+enum MHD_Result post_iterator(void *cls,
+                         enum MHD_ValueKind kind,
+                         const char *key,
+                         const char *filename,
+                         const char *content_type,
+                         const char *transfer_encoding,
+                         const char *data,
+                         uint64_t off,
+                         size_t size);
 
 

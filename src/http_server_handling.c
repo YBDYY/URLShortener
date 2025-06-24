@@ -24,7 +24,6 @@ struct PostProcessorContext {
     char buffer[1024];
 };
 
-
 enum MHD_Result post_iterator(void *cls,
                          enum MHD_ValueKind kind,
                          const char *key,
@@ -46,7 +45,6 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
             const char *version, const char *upload_data,
             size_t *upload_data_size, void **con_cls)
 {   
-    int rc = 0;
     if (strcmp(method, "POST") == 0) {
         if (*con_cls == NULL) {
             struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
@@ -77,7 +75,7 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
             *con_cls = NULL;
             return MHD_NO;
         }   
-        rc = handleAdd(ctx->buffer);
+        int rc = handleAdd(ctx->buffer);
         if (rc != 0) {
             if (rc == SQLITE_DETERMINISTIC) {
                 const char *msg = "Short code already exists";
