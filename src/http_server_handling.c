@@ -54,7 +54,7 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
         return MHD_YES;
     }
     rc = initialize_post_processor(ctx, connection, con_cls);
-    if (rc != MHD_YES) return rc;
+    if (rc != MHD_YES) return MHD_NO;
     rc = handleAdd(ctx->buffer);
     if (rc != 0) {
         if (rc == SQLITE_DETERMINISTIC) {
@@ -68,26 +68,6 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
     handle_MHD_responses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
     return MHD_YES;
 }
-
-// int handleResolveGetRequest(struct MHD_Connection *connection, const char *short_code)  // TODO: Implement this function
-// {
-//     int rc = handleResolve(short_code);
-//     if (rc != 0) {
-//         const char *error_msg = "Failed to resolve short code";
-//         struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
-//                                             (void *)error_msg, MHD_RESPMEM_PERSISTENT);
-//         int ret = MHD_queue_response(connection, MHD_HTTP_INTERNAL_SERVER_ERROR, response);
-//         MHD_destroy_response(response);
-//         return ret;
-//     }
-//     const char *msg = "Short code resolved";
-//     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(msg),
-//                                         (void *)msg, MHD_RESPMEM_PERSISTENT);
-//     int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
-//     MHD_destroy_response(response);
-//     return ret;
-// }
-
 enum MHD_Result post_iterator(void *cls,
                          enum MHD_ValueKind kind,
                          const char *key,
@@ -104,28 +84,48 @@ enum MHD_Result post_iterator(void *cls,
     }
     return MHD_NO;
 }
+
+int handleResolveGetRequest(struct MHD_Connection *connection, const char *short_code)  // TODO: Implement this function
+{
+    int rc = handleResolve(short_code);
+    if (rc != 0) {
+        const char *error_msg = "Failed to resolve short code";
+        struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
+                                            (void *)error_msg, MHD_RESPMEM_PERSISTENT);
+        int ret = MHD_queue_response(connection, MHD_HTTP_INTERNAL_SERVER_ERROR, response);
+        MHD_destroy_response(response);
+        return MHD_NO;
+    }
+    const char *msg = "Short code resolved";
+    struct MHD_Response *response = MHD_create_response_from_buffer(strlen(msg),
+                                        (void *)msg, MHD_RESPMEM_PERSISTENT);
+    int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+    MHD_destroy_response(response);
+    return MHD_YES;
+}
+
+static int helper_handleAdd(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls)
+{
+    int rc = handleAdd(ctx->buffer);
+    if (rc != 0) {
+        if (rc == SQLITE_DETERMINISTIC) {
+            handle_MHD_responses(connection, ctx, "Short code already exists", con_cls, MHD_HTTP_CONFLICT);
+            return MHD_YES;
+        } else {
+            handle_MHD_responses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
+            return MHD_NO;
+        }
+    }
+}
+
 enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connection,
             const char *url, const char *method,
             const char *version, const char *upload_data,
             size_t *upload_data_size, void **con_cls)
 {   
     if (strcmp(method, "POST") == 0) {
-        if (*con_cls == NULL) {
-            struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
-            if (ctx == NULL) {
-                handle_MHD_responses(connection, NULL, "Failed to allocate memory for context", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
-                return MHD_NO;
-            }
-            ctx->pp = MHD_create_post_processor(connection, 1024, post_iterator, ctx->buffer);
-            if (ctx->pp == NULL) {
-                free(ctx);
-                return MHD_NO;
-            }
-            ctx->buffer[0] = '\0';
-            *upload_data_size = 0;
-            *con_cls = ctx;
-            return MHD_YES;
-        }
+        int rc = initialize_post_context(connection, upload_data_size, con_cls);
+        if (rc != MHD_YES) return rc;
         struct PostProcessorContext *ctx = *con_cls;
         if (*upload_data_size != 0) {
             MHD_post_process(ctx->pp, upload_data, *upload_data_size);
@@ -136,16 +136,8 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
             handle_MHD_responses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
             return MHD_NO;
         }   
-        int rc = handleAdd(ctx->buffer);
-        if (rc != 0) {
-            if (rc == SQLITE_DETERMINISTIC) {
-                handle_MHD_responses(connection, ctx, "Short code already exists", con_cls, MHD_HTTP_CONFLICT);
-                return MHD_YES;
-            } else {
-                handle_MHD_responses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
-                return MHD_NO;
-            }
-        }
+        rc = helper_handleAdd(ctx, connection, con_cls);
+        if (rc != MHD_YES) return MHD_NO;
         handle_MHD_responses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
         return MHD_YES;
     }
