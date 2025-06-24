@@ -21,6 +21,11 @@
 // 	{ MHD_OPTION_END, 0, NULL }
 // };
 
+struct PostProcessorContext {
+    struct MHD_PostProcessor *pp;
+    char buffer[1024];
+};
+
 enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connection,
             const char *url, const char *method,
             const char *version, const char *upload_data,
@@ -39,5 +44,3 @@ enum MHD_Result post_iterator(void *cls,
                          const char *data,
                          uint64_t off,
                          size_t size);
-
-
