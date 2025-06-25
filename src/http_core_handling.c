@@ -5,8 +5,10 @@ void handleMHDResponses(struct MHD_Connection *connection, struct PostProcessorC
     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
                                             (void *)error_msg, MHD_RESPMEM_PERSISTENT);
     MHD_queue_response(connection, code, response);
+    log_info("Response sent: %s (code=%d)", error_msg, code);
     MHD_destroy_response(response);
     if (ctx != NULL) {
+        log_error("Cleaning up post processor context: %p", (void *)ctx);
         MHD_destroy_post_processor(ctx->pp);
         free(ctx);
     }

@@ -3,6 +3,7 @@
 // TODO: Set up TLS options when implementing HTTPS
 #include "core.h"
 #include "http_post_request.h"
+#include "logging.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/types.h>

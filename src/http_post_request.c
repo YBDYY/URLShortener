@@ -74,12 +74,15 @@ int respondToPostRequest(struct PostProcessorContext *ctx, struct MHD_Connection
     if (rc != 0) {
         if (rc == SQLITE_DETERMINISTIC) {
             handleMHDResponses(connection, ctx, "Short code already exists", con_cls, MHD_HTTP_CONFLICT);
+            log_info("Short code already exists for URL: %s", ctx->buffer);
             return MHD_YES;
         } else {
             handleMHDResponses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
+            log_error("Failed to add URL: %s", ctx->buffer);
             return MHD_NO;
         }
     }
     handleMHDResponses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
+    log_info("URL added successfully: %s", ctx->buffer);
     return MHD_YES;
 }
