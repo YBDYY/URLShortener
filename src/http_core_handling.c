@@ -21,21 +21,12 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
             size_t *upload_data_size, void **con_cls)
 {   
     if (strcmp(method, "POST") == 0) {
-        int rc = initializePostContext(connection, upload_data_size, con_cls);
-        if (rc != MHD_YES) return rc;
-        struct PostProcessorContext *ctx = *con_cls;
-        if (*upload_data_size != 0) {
-            MHD_post_process(ctx->pp, upload_data, *upload_data_size);
-            *upload_data_size = 0;
-            return MHD_YES;
-        }
-        if (ctx->pp == NULL) {
-            handleMHDResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
+        int rc = handlePostRequest(connection, upload_data, upload_data_size, con_cls);
+        if (rc != MHD_YES) {
+            handleMHDResponses(connection, NULL, "Failed to handle POST request", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
+            log_error("Failed to handle POST request for URL: %s", url);
             return MHD_NO;
-        }   
-        rc = respondToPostRequest(ctx, connection, con_cls);
-        if (rc != MHD_YES) return MHD_NO;
-        handleMHDResponses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
+        }
         return MHD_YES;
     }
 
