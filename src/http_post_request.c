@@ -4,8 +4,10 @@ int initializePostProcessor(struct PostProcessorContext *ctx, struct MHD_Connect
 {
     if (ctx->pp == NULL) {
         handleMHDResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
+        log_info("No post processor available for ctx=%p", (void *)ctx);
         return MHD_NO;
     }   
+    log_info("Post processor initialized for ctx=%p", (void *)ctx);
     return MHD_YES;
 }
 
@@ -15,16 +17,19 @@ int initializePostContext(struct MHD_Connection *connection, size_t *upload_data
         struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
         if (ctx == NULL) {
             handleMHDResponses(connection, NULL, "Failed to allocate memory for context", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
+            log_error("Failed to allocate memory for context in POST Context Initialization");
             return MHD_NO;
         }
         ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
         if (ctx->pp == NULL) {
+            log_error("Failed to create post processor for ctx=%p", (void *)ctx);
             free(ctx);
             return MHD_NO;
         }
         ctx->buffer[0] = '\0';
         *upload_data_size = 0;
         *con_cls = ctx;
+        log_info("Initialized POST context successfully (ctx=%p)", (void *)ctx);
         return MHD_YES;
     }
     return MHD_YES;
@@ -55,6 +60,7 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
     if (*upload_data_size != 0) {
         MHD_post_process(ctx->pp, upload_data, *upload_data_size);
         *upload_data_size = 0;
+        log_info("Post data processed: %s", ctx->buffer);
         return MHD_YES;
     }
     rc = initializePostProcessor(ctx, connection, con_cls);

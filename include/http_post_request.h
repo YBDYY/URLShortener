@@ -1,5 +1,4 @@
 #pragma once
-
 #include "http_core_handling.h"
 #include <stdint.h>
 #include <stddef.h>
