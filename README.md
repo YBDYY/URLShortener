@@ -14,7 +14,7 @@ A lightweight and efficient URL shortening service written in C, using `libmicro
 * **Written in pure C** for performance and control
 * **Modular architecture** for clean code separation
 
-## 🛠 Technologies Used
+## Technologies Used
 
 * C99
 * [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/)
