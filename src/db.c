@@ -74,9 +74,12 @@ int tableAdd(const char *short_code, const char *original_url)
 		log_error("Error: database not initalized \n");
 		return SQLITE_DENY;
 	}
+	if (short_code == NULL) {
+		log_error("Error: short_code is NULL");
+		return SQLITE_MISUSE;
+	}
 	rc = checkDuplicate(short_code);
-	if (rc != SQLITE_OK) 
-		return rc;
+	if (rc != SQLITE_OK) return rc;
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		log_error("sqlite3_prepare_v2() failed: %s\n", sqlite3_errmsg(db));

@@ -23,7 +23,11 @@ void base62Encode(uint64_t value, char *output, size_t output_size) {
 }
 
 int finalHashing(char *salted_string, const char *url, unsigned char *hash, char *short_code)
-{
+{   
+    if (url == NULL || url[0] == '\0') {
+        log_error("Invalid URL provided for hashing");
+        return HASHING_ERR_NULL_INPUT;
+    }
     snprintf(salted_string, SALTED_STRING_SIZE, "%s%ld%d", url, time(NULL), rand());
 	unsigned char *result = SHA256((const unsigned char *)url, strlen(url), hash);
 	if (result == NULL) {
