@@ -4,7 +4,7 @@ int initializePostProcessor(struct PostProcessorContext *ctx, struct MHD_Connect
 {
     if (ctx->pp == NULL) {
         handleMHDResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
-        log_info("No post processor available for ctx=%p", (void *)ctx);
+        log_error("No post processor available for ctx=%p", (void *)ctx);
         return MHD_NO;
     }   
     log_info("Post processor initialized for ctx=%p", (void *)ctx);
