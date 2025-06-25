@@ -31,5 +31,6 @@ int finalHashing(char *salted_string, const char *url, unsigned char *hash, char
         return HASHING_ERR_NULL_INPUT;
     }
 	base62Encode(hash_to_int(hash), short_code, sizeof(short_code));
+    log_info("Generated short code '%s' for URL '%s'", short_code, url);
     return HASHING_SUCCESS;
 }
