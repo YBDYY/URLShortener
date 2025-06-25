@@ -5,7 +5,7 @@ A lightweight and efficient URL shortening service written in C, using `libmicro
 
 > ⚠️ **Project Status**: This project is currently under active development. Core functionality is working, but features and architecture may change. Contributions and feedback are welcome.
 
-## 🚀 Features
+## Features
 
 * **Shorten URLs** via a simple `POST /add` request
 * **Resolve short codes** using a `GET /resolve/<short_code>` endpoint
@@ -20,7 +20,7 @@ A lightweight and efficient URL shortening service written in C, using `libmicro
 * [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/)
 * SQLite3
 
-## 📦 Build Instructions
+## Build Instructions
 
 ### Prerequisites
 
@@ -43,7 +43,7 @@ make
 
 The server runs on `localhost:8888`.
 
-## 📚 API Usage
+## API Usage
 
 ### Add URL (POST)
 
@@ -66,7 +66,7 @@ url=https://example.com
 **Endpoint:** `/resolve/<short_code>`
 **Response:** Returns resolved URL or error message
 
-## 🧱 Project Structure
+## Project Structure
 
 ```
 .
@@ -80,11 +80,11 @@ url=https://example.com
 └── include/              # Header files
 ```
 
-## 🌐 Frontend
+## Frontend
 
 A frontend interface for URLShortener is under development and will be added to the [GitHub repository](https://github.com/n4tas/URLShortener) soon.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
