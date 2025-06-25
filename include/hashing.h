@@ -1,4 +1,5 @@
 #pragma once
+#include "logging.h"
 #include <stdio.h>
 #include <openssl/sha.h>
 #include <openssl/rand.h>

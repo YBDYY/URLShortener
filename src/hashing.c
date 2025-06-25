@@ -26,7 +26,10 @@ int finalHashing(char *salted_string, const char *url, unsigned char *hash, char
 {
     snprintf(salted_string, SALTED_STRING_SIZE, "%s%ld%d", url, time(NULL), rand());
 	unsigned char *result = SHA256((const unsigned char *)url, strlen(url), hash);
-	if (result == NULL) return HASHING_ERR_NULL_INPUT;
+	if (result == NULL) {
+        log_error("SHA256 hashing failed for URL: %s", url);
+        return HASHING_ERR_NULL_INPUT;
+    }
 	base62Encode(hash_to_int(hash), short_code, sizeof(short_code));
     return HASHING_SUCCESS;
 }
