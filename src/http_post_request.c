@@ -65,18 +65,7 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
     }
     rc = initializePostProcessor(ctx, connection, con_cls);
     if (rc != MHD_YES) return MHD_NO;
-    rc = handleAdd(ctx->buffer);
-    if (rc != 0) {
-        if (rc == SQLITE_DETERMINISTIC) {
-            handleMHDResponses(connection, ctx, "Short code already exists", con_cls, MHD_HTTP_CONFLICT);
-            return MHD_YES;
-        } else {
-            handleMHDResponses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
-            return MHD_NO;
-        }
-    }
-    handleMHDResponses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
-    return MHD_YES;
+    return respondToPostRequest(ctx, connection, con_cls);
 }
 
 int respondToPostRequest(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls)
@@ -91,5 +80,6 @@ int respondToPostRequest(struct PostProcessorContext *ctx, struct MHD_Connection
             return MHD_NO;
         }
     }
+    handleMHDResponses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
     return MHD_YES;
 }
