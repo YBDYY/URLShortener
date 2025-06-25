@@ -1,10 +1,4 @@
-#include "../include/hashing.h"
-#include "../include/db.h"
-#include "../include/core.h"
-#include "../include/http_server_handling.h"
-
-#include <microhttpd.h>
-#include <string.h>
+#include "../include/http_core_handling.h"
 
 #define PORT 8888
 
