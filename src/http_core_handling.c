@@ -34,11 +34,7 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
     //     return (handleResolveGetRequest(connection, short_code) == MHD_HTTP_OK)
     //         ? MHD_YES : MHD_NO;
     // }
-    const char *not_found = "Not found - valid endpoints are /add (POST) and /resolve/<short_code> (GET)";
-    struct MHD_Response *response = MHD_create_response_from_buffer(strlen(not_found),
-                                        (void *)not_found, MHD_RESPMEM_PERSISTENT);
-    MHD_queue_response(connection, MHD_HTTP_NOT_FOUND, response);
-    MHD_destroy_response(response);
+    handleMHDResponses(connection, NULL, "Not found - valid endpoints are /add (POST) and /resolve/<short_code> (GET)", con_cls, MHD_HTTP_NOT_FOUND);
     return MHD_YES;
 }
 
