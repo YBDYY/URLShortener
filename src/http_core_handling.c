@@ -25,7 +25,6 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
         if (rc != MHD_YES) {
             handleMHDResponses(connection, NULL, "Failed to handle POST request", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
             log_error("Failed to handle POST request for URL: %s", url);
-            return MHD_NO;
         }
         return MHD_YES;
     }

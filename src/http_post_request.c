@@ -78,7 +78,7 @@ int respondToPostRequest(struct PostProcessorContext *ctx, struct MHD_Connection
             return MHD_YES;
         } else {
             handleMHDResponses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
-            log_error("Failed to add URL: %s", ctx->buffer);
+            log_error("Failed to add URL");
             return MHD_NO;
         }
     }
