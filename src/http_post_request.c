@@ -1,25 +1,26 @@
 #include "../include/http_post_request.h"
 
-int initializePostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls)
+int checkPostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls)
 {
     if (ctx->pp == NULL) {
         handleMHDResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
         log_error("No post processor available for ctx=%p", (void *)ctx);
+		free(ctx);
         return MHD_NO;
-    }   
+    }
     log_info("Post processor initialized for ctx=%p", (void *)ctx);
     return MHD_YES;
 }
 
 int initializePostContext(struct MHD_Connection *connection, size_t *upload_data_size, void **con_cls)
 {
-    if (*con_cls == NULL) {
+	if (*con_cls == NULL) {
         struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
         if (ctx == NULL) {
             handleMHDResponses(connection, NULL, "Failed to allocate memory for context", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
             log_error("Failed to allocate memory for context in POST Context Initialization");
             return MHD_NO;
-        }
+		}
         ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
         if (ctx->pp == NULL) {
             log_error("Failed to create post processor for ctx=%p", (void *)ctx);

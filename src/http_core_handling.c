@@ -19,14 +19,13 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
             const char *url, const char *method,
             const char *version, const char *upload_data,
             size_t *upload_data_size, void **con_cls)
-{   
+{
     if (strcmp(method, "POST") == 0) {
-        int rc = handlePostRequest(connection, upload_data, upload_data_size, con_cls);
-        if (rc != MHD_YES) {
-            handleMHDResponses(connection, NULL, "Failed to handle POST request", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
-            log_error("Failed to handle POST request for URL: %s", url);
-        }
-        return MHD_YES;
+		if (*con_cls == NULL)
+			return handlePostRequest(connection, upload_data, upload_data_size, con_cls);
+		if (*upload_data_size != 0)
+			return handlePostRequest(connection, upload_data, upload_data_size, con_cls);
+		return handlePostRequest(connection, upload_data, upload_data_size, con_cls);
     }
 
     // if (strcmp(method, "GET") == 0) { // TODO: Implement this function
@@ -35,6 +34,6 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
     //         ? MHD_YES : MHD_NO;
     // }
     handleMHDResponses(connection, NULL, "Not found - valid endpoints are /add (POST) and /resolve/<short_code> (GET)", con_cls, MHD_HTTP_NOT_FOUND);
-    return MHD_YES;
+    return MHD_NO;
 }
 
