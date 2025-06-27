@@ -12,6 +12,24 @@ int checkPostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *
     return MHD_YES;
 }
 
+enum MHD_Result postIterator(void *cls,
+                         enum MHD_ValueKind kind,
+                         const char *key,
+                         const char *filename,
+                         const char *content_type,
+                         const char *transfer_encoding,
+                         const char *data,
+                         uint64_t off,
+                         size_t size)
+{
+    if (strcmp(key, "url") == 0 && data != NULL) {
+        char *dest = (char *)cls;
+        strncat(dest, data, size);
+		log_info("POST field received: key=%s, size=%zu, data=%.*s", key, (int)size, data);
+    }
+    return MHD_YES;
+}
+
 int initializePostContext(struct MHD_Connection *connection, size_t *upload_data_size, void **con_cls)
 {
 	if (*con_cls == NULL) {
@@ -36,23 +54,6 @@ int initializePostContext(struct MHD_Connection *connection, size_t *upload_data
     return MHD_YES;
 }
 
-enum MHD_Result postIterator(void *cls,
-                         enum MHD_ValueKind kind,
-                         const char *key,
-                         const char *filename,
-                         const char *content_type,
-                         const char *transfer_encoding,
-                         const char *data,
-                         uint64_t off,
-                         size_t size)
-{
-    if (strcmp(key, "url") == 0 && data != NULL) {
-        char *dest = (char *)cls;
-        strncat(dest, data, size);
-    }
-    return MHD_NO;
-}
-
 int handlePostRequest(struct MHD_Connection *connection, const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
     int rc = initializePostContext(connection, upload_data_size, con_cls);
@@ -64,7 +65,7 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
         log_info("Post data processed: %s", ctx->buffer);
         return MHD_YES;
     }
-    rc = initializePostProcessor(ctx, connection, con_cls);
+    rc = checkPostProcessor(ctx, connection, con_cls);
     if (rc != MHD_YES) return MHD_NO;
     return respondToPostRequest(ctx, connection, con_cls);
 }
