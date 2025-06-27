@@ -8,7 +8,8 @@ int main(){
 	signal(SIGPIPE, SIG_IGN); 
 	init_logging("urlshortener");
 	log_info("Service started");
-	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_ERROR_LOG, PORT, NULL, NULL, &access_handler_callback, NULL, MHD_OPTION_END);
+	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_ERROR_LOG, PORT, NULL, NULL,                         &access_handler_callback, NULL, MHD_OPTION_END);
+
 	if (daemon == NULL) {
 		MHD_stop_daemon(daemon);
 		dbClose();
@@ -17,6 +18,6 @@ int main(){
 	getchar();
 	MHD_stop_daemon(daemon);
 	dbClose();
-	close_logging();    
+	close_logging();
 	return 0;
 }

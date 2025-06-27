@@ -1,11 +1,11 @@
 #include "../include/http_post_request.h"
 
-int checkPostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls)
+int checkPostProcessor(struct PostProcessorContext *ctx, const char *key, size_t size, const char *data, struct MHD_Connection *connection, void **con_cls)
 {
     if (ctx->pp == NULL) {
         handleMHDResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
         log_error("No post processor available for ctx=%p", (void *)ctx);
-		free(ctx);
+        free(ctx);
         return MHD_NO;
     }
     log_info("Post processor initialized for ctx=%p", (void *)ctx);
@@ -25,48 +25,38 @@ enum MHD_Result postIterator(void *cls,
     if (strcmp(key, "url") == 0 && data != NULL) {
         char *dest = (char *)cls;
         strncat(dest, data, size);
-		log_info("POST field received: key=%s, size=%zu, data=%.*s", key, (int)size, data);
+        log_info("POST field received: key=%s, size=%zu, data=%.*s", key, size, (int)size, data);
     }
     return MHD_YES;
 }
 
 int initializePostContext(struct MHD_Connection *connection, size_t *upload_data_size, void **con_cls)
 {
-	if (*con_cls == NULL) {
-        struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
-        if (ctx == NULL) {
-            handleMHDResponses(connection, NULL, "Failed to allocate memory for context", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
-            log_error("Failed to allocate memory for context in POST Context Initialization");
-            return MHD_NO;
-		}
-        ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
-        if (ctx->pp == NULL) {
-            log_error("Failed to create post processor for ctx=%p", (void *)ctx);
-            free(ctx);
-            return MHD_NO;
-        }
-        ctx->buffer[0] = '\0';
-        *upload_data_size = 0;
-        *con_cls = ctx;
-        log_info("Initialized POST context successfully (ctx=%p)", (void *)ctx);
-        return MHD_YES;
+    struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
+    if (!ctx) return MHD_NO;
+    memset(ctx->buffer, 0, sizeof(ctx->buffer));
+    ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
+    if (checkPostProcessor(ctx, NULL, 0, NULL, connection, con_cls) != MHD_YES) {
+        free(ctx);
+        return MHD_NO;
     }
+    *upload_data_size = 0;
+    *con_cls = ctx;
+    log_info("Initialized POST context successfully");
     return MHD_YES;
 }
 
-int handlePostRequest(struct MHD_Connection *connection, const char *upload_data, size_t *upload_data_size, void **con_cls)
+int handlePostRequest(struct MHD_Connection *connection, const char *upload_data,
+                      size_t *upload_data_size, void **con_cls)
 {
-    int rc = initializePostContext(connection, upload_data_size, con_cls);
-    if (rc != MHD_YES) return rc;
     struct PostProcessorContext *ctx = *con_cls;
+    if (!ctx)
+        return initializePostContext(connection, upload_data_size, con_cls);
     if (*upload_data_size != 0) {
         MHD_post_process(ctx->pp, upload_data, *upload_data_size);
         *upload_data_size = 0;
-        log_info("Post data processed: %s", ctx->buffer);
         return MHD_YES;
     }
-    rc = checkPostProcessor(ctx, connection, con_cls);
-    if (rc != MHD_YES) return MHD_NO;
     return respondToPostRequest(ctx, connection, con_cls);
 }
 
@@ -76,15 +66,13 @@ int respondToPostRequest(struct PostProcessorContext *ctx, struct MHD_Connection
     if (rc != 0) {
         if (rc == SQLITE_DETERMINISTIC) {
             handleMHDResponses(connection, ctx, "Short code already exists", con_cls, MHD_HTTP_CONFLICT);
-            log_info("Short code already exists for URL: %s", ctx->buffer);
             return MHD_YES;
         } else {
             handleMHDResponses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
-            log_error("Failed to add URL");
-            return MHD_NO;
+            return MHD_YES;
         }
     }
+	log_info("URL added successfully: %s", ctx->buffer);
     handleMHDResponses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
-    log_info("URL added successfully: %s", ctx->buffer);
     return MHD_YES;
 }
