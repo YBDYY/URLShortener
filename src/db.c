@@ -112,31 +112,26 @@ int tableResolve(const char *short_code)
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		log_error("sqlite3_prepare_v2() failed: %s\n", sqlite3_errmsg(db));
-		dbClose();
 		return rc;
 	}
 	rc = sqlite3_bind_text(stmt, 1, short_code, -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
 		log_error("sqlite3_bind_text() failed: %s\n", sqlite3_errmsg(db));
 		sqlite3_finalize(stmt);
-		dbClose();
 		return rc;
 	}
 	rc = sqlite3_step(stmt);
 	if (rc == SQLITE_ROW) {
 		const unsigned char *url = sqlite3_column_text(stmt, 0);
 		log_info("Short code '%s' resolves to URL '%s'", short_code, url);
-		dbClose();
 		sqlite3_finalize(stmt);
 		return SQLITE_OK;
 	} else if (rc == SQLITE_DONE) {
 		log_error("Short code '%s' not found in database", short_code);
-		dbClose();
 		sqlite3_finalize(stmt);
 		return SQLITE_NOTFOUND;
 	} else {
 		log_error("sqlite3_step() failed for short_code='%s': %s", short_code, sqlite3_errmsg(db));
-		dbClose();
 		sqlite3_finalize(stmt);
 		return rc;
 	}
