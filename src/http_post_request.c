@@ -8,7 +8,7 @@
 int checkPostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls)
 {
     if (ctx->pp == NULL) {
-        handleMHDResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
+        handleMHDPortResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
         log_error("No post processor available for ctx=%p", (void *)ctx);
         free(ctx);
         return MHD_NO;
@@ -69,14 +69,14 @@ int respondToPostRequest(struct PostProcessorContext *ctx, struct MHD_Connection
     int rc = handleAdd(ctx->buffer);
     if (rc != 0) {
         if (rc == SQLITE_DETERMINISTIC) {
-            handleMHDResponses(connection, ctx, "Short code already exists", con_cls, MHD_HTTP_CONFLICT);
+            handleMHDPortResponses(connection, ctx, "Short code already exists", con_cls, MHD_HTTP_CONFLICT);
             return MHD_YES;
         } else {
-            handleMHDResponses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
+            handleMHDPortResponses(connection, ctx, "Failed to add URL", con_cls, MHD_HTTP_INTERNAL_SERVER_ERROR);
             return MHD_YES;
         }
     }
 	log_info("URL added successfully: %s", ctx->buffer);
-    handleMHDResponses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
+    handleMHDPortResponses(connection, ctx, "URL added successfully", con_cls, MHD_HTTP_OK);
     return MHD_YES;
 }

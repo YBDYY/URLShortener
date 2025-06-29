@@ -17,8 +17,10 @@ struct PostProcessorContext {
     struct MHD_PostProcessor *pp;
     char buffer[BUFFER_SIZE];
 };
-                         
-void handleMHDResponses(struct MHD_Connection *connection, struct PostProcessorContext *ctx, char *error_msg, void **con_cls, int code);
+
+void handleMHDGetResponses(struct MHD_Connection *connection, char *error_msg, void **con_cls, int code);
+
+void handleMHDPortResponses(struct MHD_Connection *connection, struct PostProcessorContext *ctx, char *error_msg, void **con_cls, int code);
 
 enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connection,
             const char *url, const char *method,

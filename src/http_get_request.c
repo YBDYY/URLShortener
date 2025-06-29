@@ -5,15 +5,15 @@ int handleGetRequest(struct MHD_Connection *connection, const char *upload_data,
 {
 	const char *short_code = MHD_lookup_connection_value(connection, MHD_GET_ARGUMENT_KIND, "short_code");
 	if (short_code == NULL) {
-		handleMHDResponses(connection, NULL, "Short code not provided", con_cls, MHD_HTTP_BAD_REQUEST);
+		handleMHDGetResponses(connection, "Short code not provided", con_cls, MHD_HTTP_BAD_REQUEST);
 		return MHD_YES;
 	}
 	int rc = handleResolve(short_code);
     if (rc != 0) {
-		handleMHDResponses(connection, NULL, "Failed to resolve short code", NULL, MHD_HTTP_INTERNAL_SERVER_ERROR);
+		handleMHDGetResponses(connection, "Failed to resolve short code", NULL, MHD_HTTP_INTERNAL_SERVER_ERROR);
         return MHD_YES;
     }
-	handleMHDResponses(connection, NULL, "Short code resolved successfully", NULL, MHD_HTTP_OK);
+	handleMHDGetResponses(connection, "Short code resolved successfully", NULL, MHD_HTTP_OK);
     return MHD_YES;
 }
 

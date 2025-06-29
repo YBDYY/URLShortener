@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-void handleMHDResponses(struct MHD_Connection *connection, struct PostProcessorContext *ctx, char *error_msg, void **con_cls, int code)
+void handleMHDPortResponses(struct MHD_Connection *connection, struct PostProcessorContext *ctx, char *error_msg, void **con_cls, int code)
 {
     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
                                         (void *)error_msg, MHD_RESPMEM_PERSISTENT);
@@ -17,6 +17,16 @@ void handleMHDResponses(struct MHD_Connection *connection, struct PostProcessorC
         MHD_destroy_post_processor(ctx->pp);
         free(ctx);
     }
+    *con_cls = NULL;
+}
+
+void handleMHDGetResponses(struct MHD_Connection *connection, char *error_msg, void **con_cls, int code)
+{
+    struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
+                                        (void *)error_msg, MHD_RESPMEM_PERSISTENT);
+    MHD_queue_response(connection, code, response);
+    log_info("Response sent: %s (code=%d)", error_msg, code);
+    MHD_destroy_response(response);
     *con_cls = NULL;
 }
 
