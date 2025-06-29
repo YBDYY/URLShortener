@@ -1,8 +1,5 @@
 #pragma once
 
-#include <sqlite3.h>
-#include <stddef.h>
-
 int dbInit(const char *db_path);
 
 int tableAdd(const char *short_code, const char *original_url);

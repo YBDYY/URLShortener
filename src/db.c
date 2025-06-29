@@ -1,4 +1,7 @@
 #include "../include/db.h"
+#include "logging.h"
+#include <sqlite3.h>
+#include <stdio.h>
 
 sqlite3 *db = NULL;
 
