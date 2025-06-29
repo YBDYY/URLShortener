@@ -1,31 +1,21 @@
 #pragma once
-// TODO: Add OptionItem MHD_OPTION_NOTIFY_COMPLETED
 // TODO: Set up TLS options when implementing HTTPS
-#include "core.h"
-#include "http_post_request.h"
-#include "logging.h"
 #include <stdint.h>
+#include <stdarg.h>
 #include <stddef.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #define MHD_PLATFORM_H
 #include <microhttpd.h>
-#include <signal.h>
-#include <cjson/cJSON.h>
 
 #define MAX_CONNECTIONS 100
 #define CONNECTION_TIMEOUT 15
 #define BUFFER_SIZE 1024
-// struct MHD_OptionItem options[] = {
-// 	{ MHD_OPTION_CONNECTION_LIMIT, MAX_CONNECTIONS, NULL },
-// 	{ MHD_OPTION_CONNECTION_TIMEOUT, CONNECTION_TIMEOUT, NULL },
-// 	{ MHD_OPTION_END, 0, NULL }
-// };
 
 struct PostProcessorContext {
     struct MHD_PostProcessor *pp;
-    char buffer[1024];
+    char buffer[BUFFER_SIZE];
 };
                          
 void handleMHDResponses(struct MHD_Connection *connection, struct PostProcessorContext *ctx, char *error_msg, void **con_cls, int code);

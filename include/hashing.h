@@ -1,10 +1,6 @@
 #pragma once
-#include "logging.h"
-#include <stdio.h>
-#include <openssl/sha.h>
-#include <openssl/rand.h>
 #include <string.h>
-#include <time.h>
+#include <stdint.h>
 
 #define SALTED_STRING_SIZE 512
 #define SHORT_CODE_LENGTH 12

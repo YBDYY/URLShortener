@@ -1,6 +1,11 @@
 #include "../include/http_post_request.h"
+#include "logging.h"
+#include "../include/core.h"
+#include <stdlib.h>
+#include <string.h>
+#include <sqlite3.h>
 
-int checkPostProcessor(struct PostProcessorContext *ctx, const char *key, size_t size, const char *data, struct MHD_Connection *connection, void **con_cls)
+int checkPostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls)
 {
     if (ctx->pp == NULL) {
         handleMHDResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
@@ -36,7 +41,7 @@ int initializePostContext(struct MHD_Connection *connection, size_t *upload_data
     if (!ctx) return MHD_NO;
     memset(ctx->buffer, 0, sizeof(ctx->buffer));
     ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
-    if (checkPostProcessor(ctx, NULL, 0, NULL, connection, con_cls) != MHD_YES) {
+    if (checkPostProcessor(ctx, connection, con_cls) != MHD_YES) {
         free(ctx);
         return MHD_NO;
     }
@@ -50,8 +55,7 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
                       size_t *upload_data_size, void **con_cls)
 {
     struct PostProcessorContext *ctx = *con_cls;
-    if (!ctx)
-        return initializePostContext(connection, upload_data_size, con_cls);
+    if (!ctx) return initializePostContext(connection, upload_data_size, con_cls);
     if (*upload_data_size != 0) {
         MHD_post_process(ctx->pp, upload_data, *upload_data_size);
         *upload_data_size = 0;

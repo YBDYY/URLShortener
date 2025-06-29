@@ -1,4 +1,6 @@
 #include "../include/logging.h"
+#include <stdarg.h>
+#include <syslog.h>
 
 void init_logging(const char *ident) 
 {

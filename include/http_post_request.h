@@ -12,7 +12,7 @@ struct PostProcessorContext;
 
 int handlePostRequest(struct MHD_Connection *connection, const char *upload_data, size_t *upload_data_size, void **con_cls);
 
-int checkPostProcessor(struct PostProcessorContext *ctx, const char *key, size_t size, const char *data, struct MHD_Connection *connection, void **con_cls);
+int checkPostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *connection, void **con_cls);
 
 int initializePostContext(struct MHD_Connection *connection, size_t *upload_data_size, void **con_cls);
 

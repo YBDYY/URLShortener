@@ -1,4 +1,8 @@
 #include "../include/core.h"
+#include "../include/db.h"
+#include "../include/hashing.h"
+#include <openssl/sha.h>
+#include <sqlite3.h>
 
 int handleAdd(const char *url)
 {
@@ -12,7 +16,6 @@ int handleAdd(const char *url)
 
 int handleResolve(const char *short_code)
 {
-	int rc = dbInit(URL_PATH);
-	if (rc != SQLITE_OK) return rc;
+	if (dbInit(URL_PATH) != SQLITE_OK) return SQLITE_ERROR;
 	return tableResolve(short_code);
 }

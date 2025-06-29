@@ -1,5 +1,9 @@
 #include "../include/http_core_handling.h"
-
+#include "../include/logging.h"
+#include "../include/db.h"
+#include <signal.h>
+#include <stdio.h>
+#include <string.h> 
 #define PORT 8888
 
 int main(){

@@ -1,21 +1,19 @@
 #include "../include/http_get_request.h"
+#include "../include/core.h"
 
-int handleResolveRequest(struct MHD_Connection *connection, const char *short_code)  // TODO: Implement this function
+int handleGetRequest(struct MHD_Connection *connection, const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
-    int rc = handleResolve(short_code);
+	const char *short_code = MHD_lookup_connection_value(connection, MHD_GET_ARGUMENT_KIND, "short_code");
+	if (short_code == NULL) {
+		handleMHDResponses(connection, NULL, "Short code not provided", con_cls, MHD_HTTP_BAD_REQUEST);
+		return MHD_YES;
+	}
+	int rc = handleResolve(short_code);
     if (rc != 0) {
-        const char *error_msg = "Failed to resolve short code";
-        struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
-                                            (void *)error_msg, MHD_RESPMEM_PERSISTENT);
-        MHD_queue_response(connection, MHD_HTTP_INTERNAL_SERVER_ERROR, response);
-        MHD_destroy_response(response);
-        return MHD_NO;
+		handleMHDResponses(connection, NULL, "Failed to resolve short code", NULL, MHD_HTTP_INTERNAL_SERVER_ERROR);
+        return MHD_YES;
     }
-    const char *msg = "Short code resolved";
-    struct MHD_Response *response = MHD_create_response_from_buffer(strlen(msg),
-                                        (void *)msg, MHD_RESPMEM_PERSISTENT);
-    MHD_queue_response(connection, MHD_HTTP_OK, response);
-    MHD_destroy_response(response);
+	handleMHDResponses(connection, NULL, "Short code resolved successfully", NULL, MHD_HTTP_OK);
     return MHD_YES;
 }
 

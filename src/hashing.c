@@ -1,4 +1,9 @@
 #include "../include/hashing.h"
+#include "../include/logging.h"
+#include <openssl/sha.h>
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 
 uint64_t hash_to_int(const unsigned char *hash)
 {
