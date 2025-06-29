@@ -1,11 +1,7 @@
 #pragma once
 
-#include "logging.h"
 #include <sqlite3.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 int dbInit(const char *db_path);
 
