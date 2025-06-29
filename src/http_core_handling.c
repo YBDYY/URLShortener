@@ -17,7 +17,7 @@ void handleMHDPortResponses(struct MHD_Connection *connection, struct PostProces
         MHD_destroy_post_processor(ctx->pp);
         free(ctx);
     }
-    *con_cls = NULL;
+    if (con_cls) *con_cls = NULL;
 }
 
 void handleMHDGetResponses(struct MHD_Connection *connection, char *error_msg, void **con_cls, int code)
@@ -27,7 +27,7 @@ void handleMHDGetResponses(struct MHD_Connection *connection, char *error_msg, v
     MHD_queue_response(connection, code, response);
     log_info("Response sent: %s (code=%d)", error_msg, code);
     MHD_destroy_response(response);
-    *con_cls = NULL;
+    if (con_cls) *con_cls = NULL;
 }
 
 enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connection,
