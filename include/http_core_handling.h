@@ -18,6 +18,8 @@ struct PostProcessorContext {
     char buffer[BUFFER_SIZE];
 };
 
+extern struct MHD_Daemon *daemon_microhttpd;
+
 void handleMHDGetResponses(struct MHD_Connection *connection, char *error_msg, void **con_cls, int code);
 
 void handleMHDPortResponses(struct MHD_Connection *connection, struct PostProcessorContext *ctx, char *error_msg, void **con_cls, int code);
@@ -26,3 +28,6 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
             const char *url, const char *method,
             const char *version, const char *upload_data,
             size_t *upload_data_size, void **con_cls);
+
+void cleanup(struct PostProcessorContext *ctx);
+

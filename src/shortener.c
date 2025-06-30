@@ -1,4 +1,4 @@
-#include "../include/core.h"
+#include "../include/shortener.h"
 #include "../include/db.h"
 #include "../include/hashing.h"
 #include <openssl/sha.h>
