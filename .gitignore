@@ -10,3 +10,6 @@
 *bin
 *.json
 .cache
+*.cache
+*clangd
+*index
