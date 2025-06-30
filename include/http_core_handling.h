@@ -26,3 +26,6 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
             const char *url, const char *method,
             const char *version, const char *upload_data,
             size_t *upload_data_size, void **con_cls);
+
+void cleanup(struct PostProcessorContext *ctx, struct MHD_Response *response, struct MHD_Daemon *daemon);
+

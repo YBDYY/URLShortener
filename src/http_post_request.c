@@ -1,6 +1,7 @@
 #include "../include/http_post_request.h"
 #include "logging.h"
-#include "../include/core.h"
+#include "../include/shortener.h"
+#include "../include/signal_handling.h"
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
@@ -39,8 +40,10 @@ int initializePostContext(struct MHD_Connection *connection, size_t *upload_data
 {
     struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
     if (!ctx) return MHD_NO;
+	set_signal_context(ctx, NULL, NULL);
     memset(ctx->buffer, 0, sizeof(ctx->buffer));
     ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
+	set_signal_context(ctx, NULL, NULL);
     if (checkPostProcessor(ctx, connection, con_cls) != MHD_YES) {
         free(ctx);
         return MHD_NO;
@@ -58,6 +61,7 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
     if (!ctx) return initializePostContext(connection, upload_data_size, con_cls);
     if (*upload_data_size != 0) {
         MHD_post_process(ctx->pp, upload_data, *upload_data_size);
+		set_signal_context(ctx, NULL, NULL);
         *upload_data_size = 0;
         return MHD_YES;
     }
