@@ -8,18 +8,21 @@
 #include <string.h>
 #include <stdlib.h>
 
+struct MHD_Daemon *daemon_microhttpd = NULL;
+
 void handleMHDPortResponses(struct MHD_Connection *connection, struct PostProcessorContext *ctx, char *error_msg, void **con_cls, int code)
 {
     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
                                         (void *)error_msg, MHD_RESPMEM_PERSISTENT);
-	set_signal_context(ctx, response, NULL);
+	set_signal_context(ctx);
     MHD_queue_response(connection, code, response);
-    log_info("Response sent: %s (code=%d)", error_msg, code);
     MHD_destroy_response(response);
+	log_info("Response sent: %s (code=%d)", error_msg, code);
     if (ctx != NULL) {
         log_error("Cleaning up post processor context: %p", (void *)ctx);
         MHD_destroy_post_processor(ctx->pp);
         free(ctx);
+		ctx = NULL;
     }
     if (con_cls) *con_cls = NULL;
 }
@@ -28,10 +31,9 @@ void handleMHDGetResponses(struct MHD_Connection *connection, char *error_msg, v
 {
     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_msg),
                                         (void *)error_msg, MHD_RESPMEM_PERSISTENT);
-	set_signal_context(NULL, response, NULL);
     MHD_queue_response(connection, code, response);
-    log_info("Response sent: %s (code=%d)", error_msg, code);
     MHD_destroy_response(response);
+    log_info("Response sent: %s (code=%d)", error_msg, code);
     if (con_cls) *con_cls = NULL;
 }
 
@@ -54,21 +56,19 @@ enum MHD_Result access_handler_callback(void *cls, struct MHD_Connection *connec
     return MHD_NO;
 }
 
-void cleanup(struct PostProcessorContext *ctx, struct MHD_Response *response, struct MHD_Daemon *daemon)
+void cleanup(struct PostProcessorContext *ctx)
 {
+	log_info("Closing database connection");
+	dbClose();
 	if (ctx != NULL) {
-		log_info("Cleaning up post processor context: %p", (void *)ctx);
-		if (ctx->pp) MHD_destroy_post_processor(ctx->pp);
+		if (ctx->pp != NULL) MHD_destroy_post_processor(ctx->pp);
+		log_info("Cleaned up post processor context: %p", (void *)ctx);
 		free(ctx);
 	}
-	if (response != NULL) {
-		log_info("Cleaning up MHDResponse: %p", (void *)response);
-		MHD_destroy_response(response);
+	if (daemon_microhttpd != NULL) {
+		MHD_stop_daemon(daemon_microhttpd);
+		log_info("Stopped MHD daemon: %p", (void *)daemon_microhttpd);
 	}
-	if (daemon != NULL) {
-		log_info("Stopping MHD daemon: %p", (void *)daemon);
-		MHD_stop_daemon(daemon);
-	}
-	dbClose();
+	log_info("Closing logging system");
 	close_logging();
 }

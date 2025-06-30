@@ -14,15 +14,14 @@ int main(){
 	setup_signal_handlers();
 	init_logging("urlshortener");
 	log_info("Service started");
-	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_ERROR_LOG, PORT, NULL, NULL, &access_handler_callback, NULL, MHD_OPTION_END);
-	set_signal_context(NULL, NULL, daemon);
-	if (daemon == NULL) {
-		MHD_stop_daemon(daemon);
+	daemon_microhttpd = MHD_start_daemon(MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_ERROR_LOG, PORT, NULL, NULL, &access_handler_callback, NULL, MHD_OPTION_END);
+	if (daemon_microhttpd == NULL) {
+		MHD_stop_daemon(daemon_microhttpd);
 		dbClose();
 		return -1;
 	}
 	getchar();
-	MHD_stop_daemon(daemon);
+	MHD_stop_daemon(daemon_microhttpd);
 	dbClose();
 	close_logging();
 	return 0;

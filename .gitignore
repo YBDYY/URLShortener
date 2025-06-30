@@ -9,7 +9,7 @@
 *data
 *bin
 *.json
-.cache
+.cache*
 *.cache
 *clangd
 *index

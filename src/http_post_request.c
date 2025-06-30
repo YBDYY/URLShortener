@@ -12,6 +12,7 @@ int checkPostProcessor(struct PostProcessorContext *ctx, struct MHD_Connection *
         handleMHDPortResponses(connection, ctx, "No data received", con_cls, MHD_HTTP_BAD_REQUEST);
         log_error("No post processor available for ctx=%p", (void *)ctx);
         free(ctx);
+		ctx = NULL;
         return MHD_NO;
     }
     log_info("Post processor initialized for ctx=%p", (void *)ctx);
@@ -40,10 +41,10 @@ int initializePostContext(struct MHD_Connection *connection, size_t *upload_data
 {
     struct PostProcessorContext *ctx = calloc(1, sizeof(struct PostProcessorContext));
     if (!ctx) return MHD_NO;
-	set_signal_context(ctx, NULL, NULL);
+	set_signal_context(ctx);
     memset(ctx->buffer, 0, sizeof(ctx->buffer));
     ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
-	set_signal_context(ctx, NULL, NULL);
+	set_signal_context(ctx);
     if (checkPostProcessor(ctx, connection, con_cls) != MHD_YES) {
         free(ctx);
         return MHD_NO;
@@ -60,8 +61,7 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
     struct PostProcessorContext *ctx = *con_cls;
     if (!ctx) return initializePostContext(connection, upload_data_size, con_cls);
     if (*upload_data_size != 0) {
-        MHD_post_process(ctx->pp, upload_data, *upload_data_size);
-		set_signal_context(ctx, NULL, NULL);
+		set_signal_context(ctx);
         *upload_data_size = 0;
         return MHD_YES;
     }

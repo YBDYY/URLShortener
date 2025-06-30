@@ -16,21 +16,17 @@ signal_context_t *get_signal_context(void)
     return get_signal_context_static();
 }
 
-void set_signal_context(struct PostProcessorContext *post_processor_context, struct MHD_Response *response, struct MHD_Daemon *daemon)
+void set_signal_context(struct PostProcessorContext *post_processor_context)
 {
     signal_context_t *signal_ctx = get_signal_context();
-	signal_ctx->post_processor_context = post_processor_context;
-	signal_ctx->response = response;
-	signal_ctx->daemon = daemon;
+	if (post_processor_context)	signal_ctx->post_processor_context = post_processor_context;
 }
 
 void handle_signal(int sig) 
 {
 	log_info("Received signal %d, cleaning up and exiting...", sig);
     signal_context_t *ctx = get_signal_context();
-	if (ctx->post_processor_context) cleanup(ctx->post_processor_context, NULL, NULL);
-	if (ctx->response) cleanup(NULL, ctx->response, NULL);
-	if (ctx->daemon) cleanup(NULL, NULL, ctx->daemon);
+	cleanup(ctx->post_processor_context);
     exit(EXIT_SUCCESS);
 }
 
