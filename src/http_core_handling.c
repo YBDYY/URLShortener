@@ -22,6 +22,7 @@ void handleMHDPortResponses(struct MHD_Connection *connection, struct PostProces
         log_error("Cleaning up post processor context: %p", (void *)ctx);
         MHD_destroy_post_processor(ctx->pp);
         free(ctx);
+		ctx->pp = NULL;
 		ctx = NULL;
     }
     if (con_cls) *con_cls = NULL;
@@ -62,12 +63,11 @@ void cleanup(struct PostProcessorContext *ctx)
 	dbClose();
 	if (ctx != NULL) {
 		if (ctx->pp != NULL) MHD_destroy_post_processor(ctx->pp);
-		log_info("Cleaned up post processor context: %p", (void *)ctx);
-		free(ctx);
+		log_info("Cleaned up post processor context");
 	}
 	if (daemon_microhttpd != NULL) {
 		MHD_stop_daemon(daemon_microhttpd);
-		log_info("Stopped MHD daemon: %p", (void *)daemon_microhttpd);
+		log_info("Stopped MHD daemon");
 	}
 	log_info("Closing logging system");
 	close_logging();
