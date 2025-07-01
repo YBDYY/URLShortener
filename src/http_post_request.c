@@ -45,10 +45,7 @@ int initializePostContext(struct MHD_Connection *connection, size_t *upload_data
     memset(ctx->buffer, 0, sizeof(ctx->buffer));
     ctx->pp = MHD_create_post_processor(connection, BUFFER_SIZE, postIterator, ctx->buffer);
 	set_signal_context(ctx);
-    if (checkPostProcessor(ctx, connection, con_cls) != MHD_YES) {
-        free(ctx);
-        return MHD_NO;
-    }
+    if (checkPostProcessor(ctx, connection, con_cls) != MHD_YES) return MHD_NO;
     *upload_data_size = 0;
     *con_cls = ctx;
     log_info("Initialized POST context successfully");
@@ -60,11 +57,13 @@ int handlePostRequest(struct MHD_Connection *connection, const char *upload_data
 {
     struct PostProcessorContext *ctx = *con_cls;
     if (!ctx) return initializePostContext(connection, upload_data_size, con_cls);
+	set_signal_context(ctx);
     if (*upload_data_size != 0) {
-		set_signal_context(ctx);
+		MHD_post_process(ctx->pp, upload_data, *upload_data_size);
         *upload_data_size = 0;
         return MHD_YES;
     }
+	set_signal_context(ctx);
     return respondToPostRequest(ctx, connection, con_cls);
 }
 
