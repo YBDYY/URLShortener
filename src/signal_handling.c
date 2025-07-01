@@ -19,10 +19,10 @@ signal_context_t *get_signal_context(void)
 void set_signal_context(struct PostProcessorContext *post_processor_context)
 {
     signal_context_t *signal_ctx = get_signal_context();
-	if (post_processor_context)	signal_ctx->post_processor_context = post_processor_context;
+	if (post_processor_context) signal_ctx->post_processor_context = post_processor_context;
 }
 
-void handle_signal(int sig) 
+void handle_signal(int sig)
 {
 	log_info("Received signal %d, cleaning up and exiting...", sig);
     signal_context_t *ctx = get_signal_context();
@@ -38,8 +38,7 @@ void setup_signal_handlers(void)
     sa.sa_flags = 0;
     int signals[] = {SIGINT, SIGTERM, SIGHUP, SIGSEGV, SIGCHLD};
     for (size_t i = 0; i < sizeof(signals) / sizeof(signals[0]); ++i) {
-        if (sigaction(signals[i], &sa, NULL) < 0) {
+        if (sigaction(signals[i], &sa, NULL) < 0) 
             exit(EXIT_FAILURE);
-        }
     }
 }
