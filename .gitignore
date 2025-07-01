@@ -13,3 +13,4 @@
 *.cache
 *clangd
 *index
+.cache/clangd/index/*
